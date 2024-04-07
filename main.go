@@ -3,10 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 
+	"github.com/Darkness447/slack-bot/chat"
 	"github.com/joho/godotenv"
-	"github.com/slack-go/slack"
 )
 
 func main() {
@@ -18,22 +17,24 @@ func main() {
 		log.Fatalf("Error loading .env file")
 	}
 
-	api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
-	channelArr := []string{os.Getenv("CHANNEL_ID")}
-	fileArr := []string{"we.txt", "why.txt"}
+	chat.Run()
 
-	for i := 0; i < len(fileArr); i++ {
-		params := slack.FileUploadParameters{
-			Channels: channelArr,
-			File:     fileArr[i],
-		}
+	// api := slack.New(os.Getenv("SLACK_BOT_TOKEN"))
+	// channelArr := []string{os.Getenv("CHANNEL_ID")}
+	// fileArr := []string{"we.txt", "why.txt"}
 
-		file, err := api.UploadFile(params)
+	// for i := 0; i < len(fileArr); i++ {
+	// 	params := slack.FileUploadParameters{
+	// 		Channels: channelArr,
+	// 		File:     fileArr[i],
+	// 	}
 
-		if err != nil {
-			log.Fatal(err)
-		}
+	// 	file, err := api.UploadFile(params)
 
-		fmt.Printf("Name %s", file.Name)
-	}
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+
+	// 	fmt.Printf("Name %s", file.Name)
+	// }
 }

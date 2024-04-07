@@ -7,35 +7,38 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/shomali11/slacker"
+	"github.com/joho/godotenv"
+	"github.com/slack-io/slacker"
 )
 
-func printCommandEvents(analyticsChannel <-chan *slacker.CommandEvent) {
-	for event := range analyticsChannel {
-		fmt.Println(event.Timestamp)
-		fmt.Println(event.Command)
-		fmt.Println(event.Parameters)
-	}
-}
-
 func Run() {
-	bot := slacker.NewClient(os.Getenv("SLACK_BOT_TOKEN"), os.Getenv("SLACK_SOCKET_TOKEN"))
-	go printCommandEvents(bot.CommandEvents())
 
-	bot.Command("my birth  is <year>",&slacker.CommandDefinition{
-		Description:"Yob calculator",
-		Example:"My Yob is 2024",
-		Handler: func(botCtx slacker.BotContext,request slacker.Request,response slacker.ResponseWriter){
-			year := request.Param("year")
-			yob ,err := strconv.Atoi(year)
-			
-			if err!=nil {
+	e := godotenv.Load(".env")
+
+	if e != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
+	bot := slacker.NewClient(os.Getenv("SLACK_BOT_TOKEN"), os.Getenv("SLACK_APP_TOKEN"))
+
+	bot.AddCommand(&slacker.CommandDefinition{
+		Command:     "My Yob is <year>",
+		Description: "Yob calculator",
+		Examples:    []string{"My Yob is 2024"},
+		Handler: func(botCtx *slacker.CommandContext) {
+			fmt.Println("verifing")
+			year := botCtx.Request().Param("year")
+			yob, err := strconv.Atoi(year)
+
+			if err != nil {
 				fmt.Println(err)
 			}
 
-			age := 2024 - yob;
-			
-		}
+			age := 2024 - yob
+			r := fmt.Sprintf("age is %d", age)
+			botCtx.Response().Reply(r)
+			// botCtx.Response().Reply("hi!")
+		},
 	})
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -46,6 +49,5 @@ func Run() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 
 }
